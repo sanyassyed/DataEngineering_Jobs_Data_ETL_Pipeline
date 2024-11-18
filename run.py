@@ -1,46 +1,63 @@
 import requests
 import json
 import pandas as p
+import unicodedata
 
-url = 'https://www.themuse.com/api/public/jobs?page=50'
+def download(url):
+    try:
+        response = requests.get(url)
+        # raise an error for HTTP status codes 4xx or 5xx 
+        response.raise_for_status()
+        # r.json() is of type dictionary with keys ['page', 'page_count', 'items_per_page', 'took', 'timed_out', 'total', 'results', 'aggregations']
+        # 'results' contains the text or the actual data needed
+        # .get() function assigns the default value [] if results key is not present
+        data = response.json().get('results', [])
+        # normalise results into a dataframe
+        df = p.json_normalize(data)
 
-# def data_download(url):
-#     r = requests.get(url)
-#     print(r.status_code)
-#     data = json.loads(r.text)
-#     with open('data.json', 'w') as f:
-#         json.dump(data, f, ensure_ascii=False, indent=4)
-#     df = p.json_normalize(data['results'])
-#     #print(df.shape)
-#     #print(df.head())
-#     #df.to_csv('data.csv')
+    except requests.exceptions.RequestException as e:
+        print(f"An error occured while making the GET request: {e}")
+        df = p.DataFrame()
 
-# def read_local():
-#     df = p.read_csv('data.csv')
-#     columns_raw = ['company.name', 'locations', 'name', 'type', 'publication_date']
-#     df_clean = df[columns_raw]
-#     print(df_clean.shape)
-#     print(df_clean.columns)
+    except KeyError:
+        print("The expected 'results' key is missing from the response")
+        df = p.DataFrame
 
-# data_download(url)
-# r.json() is of type dictionary with keys ['page', 'page_count', 'items_per_page', 'took', 'timed_out', 'total', 'results', 'aggregations']
-# 'results' contains the text or the actual data needed
-try:
-    response = requests.get(url)
-    response.raise_for_status()
-    data = response.json().get('results', [])
-    df = p.json_normalize(data)
+    if not df.empty:
+        columns_raw = ['company.name', 'locations', 'name', 'type', 'publication_date']
+        df_clean = df[columns_raw]
+        print(f"The shape of the downloaded data is : {df_clean.shape}")
+        print(f"The columns in the downloaded data is {df_clean.columns}")
+    return df_clean
 
-except requests.exceptions.RequestException as e:
-    print(f"An error occured while making the GET request: {e}")
-    df = p.DataFrame()
+def save_data(df):
+    # Apply to DataFrame
+    df = df.applymap(remove_diacritics)
+    df.to_csv('data.csv', encoding='utf-8-sig', index=False) # otherwise it writes row numbers as a column
 
-except KeyError:
-    print("The expected 'results' key is missing from the response")
-    df = p.DataFrame
+def read_data():
+    df = p.read_csv('data.csv', encoding='utf-8')
+    return df
 
-if not df.empty:
-    columns_raw = ['company.name', 'locations', 'name', 'type', 'publication_date']
-    df_clean = df[columns_raw]
-    print(df_clean.shape)
-    print(df_clean.columns)
+# Function to remove accents/diacritics
+def remove_diacritics(text):
+    if isinstance(text, str):
+        return unicodedata.normalize('NFKD', text).encode('ascii', 'ignore').decode('ascii')
+    return text
+
+
+def main():
+    url = 'https://www.themuse.com/api/public/jobs?page=50'
+    # Commented for dev
+    #df_clean = download(url)
+    #save_data(df_clean)
+    
+    df = read_data()
+
+    print(f"The shape of the data loaded from local is : {df.shape}")
+    print(f"The columns in the data loaded from local is {df.columns}")
+
+    
+if __name__=="__main__":
+    main()
+
