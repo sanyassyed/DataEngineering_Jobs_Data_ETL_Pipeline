@@ -2,4 +2,4 @@
 name = "muse"
 pagination_param = "page"
 page_number = 50
-url = "https://www.themuse.com/api/public/jobs?"
+url = "https://www.themuse.com/api/public/jobs"

@@ -4,6 +4,7 @@ import unicodedata
 from dotenv import load_dotenv
 import os
 import toml
+import logging
 
 # loading secrets from .env file
 load_dotenv()
@@ -15,10 +16,15 @@ URL = app_config['api']['url']
 PAGINATION_PARAM = app_config['api']['pagination_param']
 PAGE_NUMBER = app_config['api']['page_number']
 
-def extract(url):
+def extract():
+    params = {
+              PAGINATION_PARAM : PAGE_NUMBER,
+              "api_key": API_KEY
+             }
     try:
-        response = requests.get(url)
+        response = requests.get(URL, params)
         # raise an error for HTTP status codes 4xx or 5xx 
+        # testing use response.headers, response.url, response.status_code
         response.raise_for_status()
         # r.json() is of type dictionary with keys ['page', 'page_count', 'items_per_page', 'took', 'timed_out', 'total', 'results', 'aggregations']
         # 'results' contains the text or the actual data needed
@@ -40,6 +46,9 @@ def extract(url):
         df_clean = df[columns_raw]
         print(f"The shape of the downloaded data is : {df_clean.shape}")
         print(f"The columns in the downloaded data is {df_clean.columns}")
+    else:
+        return df
+
     return df_clean
 
 # Function to remove accents/diacritics
@@ -49,7 +58,8 @@ def remove_diacritics(text):
     return text
 
 def save_data(df, file_name):
-    # Apply to DataFrame
+    
+    # Remove accents/diacritics
     df = df.map(remove_diacritics)
     df.to_csv(file_name, encoding='utf-8-sig', index=False) # otherwise it writes row numbers as a column
 
@@ -74,33 +84,35 @@ def transform(df):
     df[['city', 'country']] = df['location'].apply(lambda row: p.Series([item.strip() for item in row[0]['name'].split(',')]))
     df.drop('location', axis=1, inplace=True)
     
-    # date only remove time and other elements
+    # only keep date and remove time and other elements
     df['date'] = p.to_datetime(df['date']).dt.date
 
     return df
 
-def main():
-    url_full = f'{URL}{PAGINATION_PARAM}={PAGE_NUMBER}&api_key={API_KEY}'
-    
-    df = extract(url_full)
-    print('Data is extracted')
-    
-    save_data(df, 'data_raw.csv')
+def main() -> None:
 
-    # testing
-    #df = read_data()
+    df = extract()
+    if df.empty:
+        print('No data extracted. Terminating the script')
+        return
+    else:
+        print('Data is extracted!')
+        print(f"The shape of the dataset is : {df.shape}")
+        print(f"The columns in the dataset are: {df.columns}")
+        save_data(df, './data/data_raw.csv')
+        print('Raw data is saved!')
+        
+        # testing
+        #df = read_data()
 
-    print(f"The shape of the data loaded is : {df.shape}")
-    print(f"The columns in the data loaded are: {df.columns}")
+        df_clean = transform(df)
+        print('Data is cleaned!')
 
-    df_clean = transform(df)
-    print('Data is cleaned')
+        save_data(df_clean, './data/data_clean.csv')
+        print('Clean data is saved!')
 
-    save_data(df_clean, 'data_clean.csv')
-    print('Data is saved')
-
-    # TODO:
-    # write data to s3 bucket
+        # TODO:
+        # write data to s3 bucket
 
 if __name__=="__main__":
     main()

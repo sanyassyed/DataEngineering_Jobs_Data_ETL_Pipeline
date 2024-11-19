@@ -1,0 +1,6 @@
+[INFO:] Activating virtual env
+[INFO:] DATA FOLDER: /home/ubuntu/DataEngineering_Jobs_Data_ETL_Pipeline/data
+[INFO:] SCRIPT FILE: /home/ubuntu/DataEngineering_Jobs_Data_ETL_Pipeline/script/run.sh
+[INFO:] LOG FILE FOR run.sh IS AT: /home/ubuntu/DataEngineering_Jobs_Data_ETL_Pipeline/logs/run.sh_19-11-2024-19-46-16.log
+[INFO:] PYTHON FILE: /home/ubuntu/DataEngineering_Jobs_Data_ETL_Pipeline/script/run.py
+[INFO:] LOG FILE FOR run.py IS AT: /home/ubuntu/DataEngineering_Jobs_Data_ETL_Pipeline/logs/run.py_19-11-2024-19-46-16.log
