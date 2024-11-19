@@ -46,18 +46,6 @@ def read_data():
     df = p.read_csv('data.csv', encoding='utf-8')
     return df
 
-
-def extract_city_country(location):
-    print(type(location[0]))
-    if isinstance(location, str):
-        print('location is str')
-        location_split = location.split(':')[1].strip().replace("'", "").split(',')
-        city = location_split[0]
-        country = location_split[1]
-        print(city, country)
-        return city, country
-    else:
-        return '',''
     
 
 def transform(df):
@@ -71,25 +59,24 @@ def transform(df):
 
     # city - extract the city name
     # country - extract the country name
-    df[['city', 'country']] = df['location'].apply(lambda row: p.Series([item.strip() for item in row.split(',')]))
+    # location column has the structure dict inside a list. The dict has key 'name' which has the data we need
+    df[['city', 'country']] = df['location'].apply(lambda row: p.Series([item.strip() for item in row[0]['name'].split(',')]))
     df.drop('location', axis=1, inplace=True)
     
     # date only remove time and other elements
     df['date'] = p.to_datetime(df['date']).dt.date
 
-    print(df.head())
-    print(df.iloc[0])
     return df
 
 def main():
     url = 'https://www.themuse.com/api/public/jobs?page=50'
     
-    # Commented for dev
     df = extract(url)
     print('Data is extracted')
     
-    # for dev
     save_data(df, 'data_raw.csv')
+
+    # testing
     #df = read_data()
 
     print(f"The shape of the data loaded is : {df.shape}")
@@ -100,6 +87,9 @@ def main():
 
     save_data(df_clean, 'data_clean.csv')
     print('Data is saved')
+
+    # TODO:
+    # write data to s3 bucket
 
 if __name__=="__main__":
     main()
