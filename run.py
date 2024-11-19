@@ -1,8 +1,19 @@
 import requests
-import json
 import pandas as p
 import unicodedata
-import ast
+from dotenv import load_dotenv
+import os
+import toml
+
+# loading secrets from .env file
+load_dotenv()
+API_KEY = os.getenv('API_KEY')
+
+# loading configs
+app_config = toml.load('config.toml')
+URL = app_config['api']['url']
+PAGINATION_PARAM = app_config['api']['pagination_param']
+PAGE_NUMBER = app_config['api']['page_number']
 
 def extract(url):
     try:
@@ -69,9 +80,9 @@ def transform(df):
     return df
 
 def main():
-    url = 'https://www.themuse.com/api/public/jobs?page=50'
+    url_full = f'{URL}{PAGINATION_PARAM}={PAGE_NUMBER}&api_key={API_KEY}'
     
-    df = extract(url)
+    df = extract(url_full)
     print('Data is extracted')
     
     save_data(df, 'data_raw.csv')

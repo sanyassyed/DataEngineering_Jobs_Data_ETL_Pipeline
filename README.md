@@ -13,4 +13,6 @@
 ## How to Install and Run the Project
 ## How to Use the Project
 ## How to do Tests
+## Resources
+* [API Documentation](https://muse.ai/api#flow)
 ## License
