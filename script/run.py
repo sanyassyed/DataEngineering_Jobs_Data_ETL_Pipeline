@@ -12,9 +12,24 @@ API_KEY = os.getenv('API_KEY')
 
 # loading configs
 app_config = toml.load('config.toml')
+
+#api config
 URL = app_config['api']['url']
 PAGINATION_PARAM = app_config['api']['pagination_param']
 PAGE_NUMBER = app_config['api']['page_number']
+
+# loading env variables
+LOG_FILE = os.getenv('LOG_FILE_PYTHON')
+OUTPUT_FOLDER = os.getenv('OUTPUT_FOLDER')
+
+logging.basicConfig(
+                    level=logging.DEBUG,
+                    format="%(asctime)s %(levelname)s : %(message)s",
+                    datefmt="%Y-%m-%d %H:%M:%S",
+                    filename=LOG_FILE,
+                   )
+
+logging.info(f"LOG FILE FOR THIS PYTHON SCRIPT IS AT: {LOG_FILE}")
 
 def extract():
     params = {
@@ -34,19 +49,20 @@ def extract():
         df = p.json_normalize(data)
 
     except requests.exceptions.RequestException as e:
-        print(f"An error occured while making the GET request: {e}")
+        logging.error(f"An error occured while making the GET request: {e}")
         df = p.DataFrame()
 
     except KeyError:
-        print("The expected 'results' key is missing from the response")
+        logging.error("The expected 'results' key is missing from the response")
         df = p.DataFrame
 
     if not df.empty:
         columns_raw = ['company.name', 'locations', 'name', 'type', 'publication_date']
+        logging.info(f"Columns before clean: {df.columns}")
         df_clean = df[columns_raw]
-        print(f"The shape of the downloaded data is : {df_clean.shape}")
-        print(f"The columns in the downloaded data is {df_clean.columns}")
+        logging.info(f"Columns after clean: {df_clean.columns}")
     else:
+        logging.warning('Dataframe is empty, no data extracted')
         return df
 
     return df_clean
@@ -58,7 +74,6 @@ def remove_diacritics(text):
     return text
 
 def save_data(df, file_name):
-    
     # Remove accents/diacritics
     df = df.map(remove_diacritics)
     df.to_csv(file_name, encoding='utf-8-sig', index=False) # otherwise it writes row numbers as a column
@@ -68,7 +83,6 @@ def read_data():
     return df
 
     
-
 def transform(df):
     renamed_columns =  {'company.name':'company_name',
                         'locations':'location', 
@@ -76,7 +90,7 @@ def transform(df):
                         'type':'job_type', 
                         'publication_date':'date'}
     df.rename(columns=renamed_columns, inplace=True)
-    print(df.columns)
+    logging.info(f"Columns after renaming: {df.columns}")
 
     # city - extract the city name
     # country - extract the country name
@@ -90,26 +104,37 @@ def transform(df):
     return df
 
 def main() -> None:
+    # check if destination output folder exists
+    if not os.path.exists(OUTPUT_FOLDER):
+        logging.info(f"Creating output folder at: {OUTPUT_FOLDER}")
+        os.mkdir(OUTPUT_FOLDER)
+
+    raw_data_filename =  'data_raw.csv'
+    raw_data_file = os.path.join(OUTPUT_FOLDER, raw_data_filename)
+
+    clean_data_filename =  'data_clean.csv'
+    clean_data_file = os.path.join(OUTPUT_FOLDER, clean_data_filename)
+
 
     df = extract()
     if df.empty:
-        print('No data extracted. Terminating the script')
+        logging.warning(f"No data extracted. Terminating the script")
         return
     else:
-        print('Data is extracted!')
-        print(f"The shape of the dataset is : {df.shape}")
-        print(f"The columns in the dataset are: {df.columns}")
-        save_data(df, './data/data_raw.csv')
-        print('Raw data is saved!')
+        logging.info('Data is extracted!')
+        logging.info(f"The shape of the dataset is; {df.shape}")
+        logging.info(f"The columns in the dataset are: {df.columns}")
+        save_data(df, raw_data_file)
+        logging.info('Raw data is saved!')
         
         # testing
         #df = read_data()
 
         df_clean = transform(df)
-        print('Data is cleaned!')
+        logging.info('Data is cleaned!')
 
-        save_data(df_clean, './data/data_clean.csv')
-        print('Clean data is saved!')
+        save_data(df_clean, clean_data_file)
+        logging.info('Clean data is saved!')
 
         # TODO:
         # write data to s3 bucket

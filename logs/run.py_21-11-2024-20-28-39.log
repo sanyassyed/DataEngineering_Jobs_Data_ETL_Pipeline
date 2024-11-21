@@ -1,0 +1,17 @@
+2024-11-21 20:28:40 INFO : LOG FILE FOR THIS PYTHON SCRIPT IS AT: /home/ubuntu/DataEngineering_Jobs_Data_ETL_Pipeline/logs/run.py_21-11-2024-20-28-39.log
+2024-11-21 20:28:40 INFO : Creating output folder at: /home/ubuntu/DataEngineering_Jobs_Data_ETL_Pipeline/output
+2024-11-21 20:28:40 DEBUG : Starting new HTTPS connection (1): www.themuse.com:443
+2024-11-21 20:28:40 DEBUG : https://www.themuse.com:443 "GET /api/public/jobs?page=50&api_key=bad462ab8104299178d2a9a61bed60a226928260aace52899a1442e4b3ebd160 HTTP/11" 200 41932
+2024-11-21 20:28:40 INFO : Columns before clean: Index(['contents', 'name', 'type', 'publication_date', 'short_name',
+       'model_type', 'id', 'locations', 'categories', 'levels', 'tags',
+       'refs.landing_page', 'company.id', 'company.short_name',
+       'company.name'],
+      dtype='object')
+2024-11-21 20:28:40 INFO : Columns after clean: Index(['company.name', 'locations', 'name', 'type', 'publication_date'], dtype='object')
+2024-11-21 20:28:40 INFO : Data is extracted!
+2024-11-21 20:28:40 INFO : The shape of the dataset is; (20, 5)
+2024-11-21 20:28:40 INFO : The columns in the dataset are: Index(['company.name', 'locations', 'name', 'type', 'publication_date'], dtype='object')
+2024-11-21 20:28:40 INFO : Raw data is saved!
+2024-11-21 20:28:40 INFO : Columns after renaming: Index(['company_name', 'location', 'job_name', 'job_type', 'date'], dtype='object')
+2024-11-21 20:28:40 INFO : Data is cleaned!
+2024-11-21 20:28:40 INFO : Clean data is saved!

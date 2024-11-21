@@ -17,8 +17,8 @@ log_date=$(date +"%d-%m-%Y-%H-%M-%S")
 # Environment Variables
 # project folder
 export PROJECT_FOLDER="${script_path}"
-# data folder
-export DATA_FOLDER="${PROJECT_FOLDER}/data"
+# output folder
+export OUTPUT_FOLDER="${PROJECT_FOLDER}/output"
 # script folder & file
 export SCRIPT_FOLDER="${PROJECT_FOLDER}/script"
 export PYTHON_FILE_NAME="run.py"
@@ -44,7 +44,7 @@ source ./.v_env/bin/activate
 
 ##############################################################
 # Metadata:
-echo "[INFO:] DATA FOLDER: ${DATA_FOLDER}"
+echo "[INFO:] OUTPUT DATA FOLDER: ${OUTPUT_FOLDER}"
 echo "[INFO:] SCRIPT FILE: ${SCRIPT_FILE}"
 echo "[INFO:] LOG FILE FOR ${SCRIPT_FILE_NAME} IS AT: ${LOG_FILE}"
 
