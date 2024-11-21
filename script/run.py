@@ -116,27 +116,26 @@ def save_to_s3(df, output_file_name, bucket_name, region='us-east-2'):
 
     s3 = session.resource('s3')
     s3_client = session.client('s3')
-    # try:
-    #     s3_client.create_bucket(
-    #                             Bucket=bucket_name,
-    #                             CreateBucketConfiguration={'LocationConstraint':region}
-    #                             )
-    #     logging.info(f"{bucket_name} created on s3")
-    # except Exception as e:
-    #     logging.error(f"Bucket creation failed due to error: {e}")
-    #     return
 
-        # Convert DataFrame to CSV in memory
+
+    if not s3.Bucket(bucket_name) in s3.buckets.all():
+        logging.info(f"{bucket_name} BUCKET DOES NOT EXIST IN S3; SO CREATING IT")
+        s3_client.create_bucket(
+                                Bucket=bucket_name,
+                                CreateBucketConfiguration={'LocationConstraint':region}
+                                )
+        logging.info(f"{bucket_name} BUCKET CREATED ON S3")
+
+    # Convert DataFrame to CSV in memory
     csv_buffer = io.StringIO()
     df.to_csv(csv_buffer, index=False)
 
     logging.info("UPLOADING DATA TO S3")
-    
     try:
         s3_client.put_object(Bucket=bucket_name, Key=output_file_name, Body=csv_buffer.getvalue())
-        logging.info(f"{output_file_name} uploaded to s3")
+        logging.info(f"{output_file_name} DATA UPLOADED TO S3")
     except Exception as e:
-        logging.error(f"Upload failed due to error: {e}")
+        logging.error(f"DATA UPLOAD FAILED DUE TO: {e}")
     
     return
 
@@ -178,6 +177,8 @@ def main() -> None:
 
         # Save data to S3
         save_to_s3(df_clean, output_file_name, aws_bucket_name, aws_region)
+
+        #TODO: Pass bucket name and region name via env variables
 
 if __name__=="__main__":
     main()
