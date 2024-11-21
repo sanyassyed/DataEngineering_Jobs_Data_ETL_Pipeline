@@ -5,10 +5,15 @@ from dotenv import load_dotenv
 import os
 import toml
 import logging
+import boto3
+import time
+import io
 
 # loading secrets from .env file
 load_dotenv()
 API_KEY = os.getenv('API_KEY')
+AWS_ACCESS_KEY=os.getenv('ACCESS_KEY')
+AWS_SECRET_KEY=os.getenv('SECRET_KEY')
 
 # loading configs
 app_config = toml.load('config.toml')
@@ -103,6 +108,38 @@ def transform(df):
 
     return df
 
+def save_to_s3(df, output_file_name, bucket_name, region='us-east-2'):
+    session = boto3.Session(
+                                aws_access_key_id=AWS_ACCESS_KEY,
+                                aws_secret_access_key=AWS_SECRET_KEY
+                            )
+
+    s3 = session.resource('s3')
+    s3_client = session.client('s3')
+    # try:
+    #     s3_client.create_bucket(
+    #                             Bucket=bucket_name,
+    #                             CreateBucketConfiguration={'LocationConstraint':region}
+    #                             )
+    #     logging.info(f"{bucket_name} created on s3")
+    # except Exception as e:
+    #     logging.error(f"Bucket creation failed due to error: {e}")
+    #     return
+
+        # Convert DataFrame to CSV in memory
+    csv_buffer = io.StringIO()
+    df.to_csv(csv_buffer, index=False)
+
+    logging.info("UPLOADING DATA TO S3")
+    
+    try:
+        s3_client.put_object(Bucket=bucket_name, Key=output_file_name, Body=csv_buffer.getvalue())
+        logging.info(f"{output_file_name} uploaded to s3")
+    except Exception as e:
+        logging.error(f"Upload failed due to error: {e}")
+    
+    return
+
 def main() -> None:
     # check if destination output folder exists
     if not os.path.exists(OUTPUT_FOLDER):
@@ -115,6 +152,9 @@ def main() -> None:
     clean_data_filename =  'data_clean.csv'
     clean_data_file = os.path.join(OUTPUT_FOLDER, clean_data_filename)
 
+    aws_bucket_name = 'wcd-projects-jobs-data-2024'
+    aws_region = 'us-east-2'
+    output_file_name = f"jobs_{time.strftime("%Y%m%d-%H%M%S")}.csv"
 
     df = extract()
     if df.empty:
@@ -136,8 +176,8 @@ def main() -> None:
         save_data(df_clean, clean_data_file)
         logging.info('Clean data is saved!')
 
-        # TODO:
-        # write data to s3 bucket
+        # Save data to S3
+        save_to_s3(df_clean, output_file_name, aws_bucket_name, aws_region)
 
 if __name__=="__main__":
     main()

@@ -53,4 +53,5 @@ deactivate
 
 ## Creating Project Script
 * Create the run.py file
-* 
+* Use the sarah_de `Access Key` and `Secret Key` from AWS:
+    * 
