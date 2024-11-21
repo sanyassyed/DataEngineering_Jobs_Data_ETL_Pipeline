@@ -5,4 +5,10 @@
 # virtual environment files
 .v_env/*
 
+# log files
+*.log
+
+# output files
+output/*
+
 
