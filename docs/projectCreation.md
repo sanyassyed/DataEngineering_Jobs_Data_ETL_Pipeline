@@ -54,4 +54,8 @@ deactivate
 ## Creating Project Script
 * Create the run.py file
 * Use the sarah_de `Access Key` and `Secret Key` from AWS:
-    * 
+* Add the package requirements to the requirements.txt as follows: 
+```bash
+source .v_env/bin/activate
+pip freeze > requirements.txt
+```

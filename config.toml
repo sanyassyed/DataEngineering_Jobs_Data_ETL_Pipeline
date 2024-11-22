@@ -3,3 +3,7 @@ name = "muse"
 pagination_param = "page"
 page_number = 50
 url = "https://www.themuse.com/api/public/jobs"
+
+[aws]
+bucket_name = 'wcd-projects-jobs-data-2024'
+region = 'us-east-2'

@@ -8,20 +8,15 @@ import logging
 import boto3
 import time
 import io
+import pyarrow
+import argparse
+
 
 # loading secrets from .env file
 load_dotenv()
 API_KEY = os.getenv('API_KEY')
 AWS_ACCESS_KEY=os.getenv('ACCESS_KEY')
 AWS_SECRET_KEY=os.getenv('SECRET_KEY')
-
-# loading configs
-app_config = toml.load('config.toml')
-
-#api config
-URL = app_config['api']['url']
-PAGINATION_PARAM = app_config['api']['pagination_param']
-PAGE_NUMBER = app_config['api']['page_number']
 
 # loading env variables
 LOG_FILE = os.getenv('LOG_FILE_PYTHON')
@@ -36,13 +31,14 @@ logging.basicConfig(
 
 logging.info(f"LOG FILE FOR THIS PYTHON SCRIPT IS AT: {LOG_FILE}")
 
-def extract():
+def extract(url, pagination_param, page_number):
     params = {
-              PAGINATION_PARAM : PAGE_NUMBER,
+              pagination_param : page_number,
               "api_key": API_KEY
              }
     try:
-        response = requests.get(URL, params)
+        logging.info(f"Making API request to URL: {url} with params: {params}")
+        response = requests.get(url, params)
         # raise an error for HTTP status codes 4xx or 5xx 
         # testing use response.headers, response.url, response.status_code
         response.raise_for_status()
@@ -117,7 +113,7 @@ def save_to_s3(df, output_file_name, bucket_name, region='us-east-2'):
     s3 = session.resource('s3')
     s3_client = session.client('s3')
 
-
+    # Check & create s3 bucket
     if not s3.Bucket(bucket_name) in s3.buckets.all():
         logging.info(f"{bucket_name} BUCKET DOES NOT EXIST IN S3; SO CREATING IT")
         s3_client.create_bucket(
@@ -127,59 +123,84 @@ def save_to_s3(df, output_file_name, bucket_name, region='us-east-2'):
         logging.info(f"{bucket_name} BUCKET CREATED ON S3")
 
     # Convert DataFrame to CSV in memory
-    csv_buffer = io.StringIO()
-    df.to_csv(csv_buffer, index=False)
+    parquet_buffer = io.BytesIO()
+    df.to_parquet(parquet_buffer, index=False, engine='pyarrow')
 
-    logging.info("UPLOADING DATA TO S3")
+    logging.info(f"Uploading data to S3 bucket: {bucket_name} in region: {region}")
     try:
-        s3_client.put_object(Bucket=bucket_name, Key=output_file_name, Body=csv_buffer.getvalue())
-        logging.info(f"{output_file_name} DATA UPLOADED TO S3")
+        s3_client.put_object(Bucket=bucket_name, Key=output_file_name, Body=parquet_buffer.getvalue())
+        logging.info(f"{output_file_name} DATA UPLOADED TO S3 AS PARQUET")
     except Exception as e:
         logging.error(f"DATA UPLOAD FAILED DUE TO: {e}")
     
     return
 
-def main() -> None:
-    # check if destination output folder exists
-    if not os.path.exists(OUTPUT_FOLDER):
+def main(test_run: bool) -> None:
+    if test_run:
+        logging.info("Running in test mode...")
+
+    else:
+        logging.info("Running in production mode...")
+
+    # Load configs
+    app_config = toml.load('config.toml')
+
+    # API config
+    url = app_config['api']['url']
+    pagination_param = app_config['api']['pagination_param']
+    page_number = app_config['api']['page_number']
+
+    # AWS config
+    aws_bucket_name = app_config['aws']['bucket_name']
+    aws_region = app_config['aws']['region']
+
+    # Check and create 'output' folder
+    if test_run and not os.path.exists(OUTPUT_FOLDER):
         logging.info(f"Creating output folder at: {OUTPUT_FOLDER}")
         os.mkdir(OUTPUT_FOLDER)
 
-    raw_data_filename =  'data_raw.csv'
-    raw_data_file = os.path.join(OUTPUT_FOLDER, raw_data_filename)
+    if test_run:
+        raw_data_file = os.path.join(OUTPUT_FOLDER, 'data_raw.csv')
+        clean_data_file = os.path.join(OUTPUT_FOLDER, 'data_clean.csv')
+    
+    output_file_name = f"jobs_{time.strftime('%Y%m%d-%H%M%S')}.parquet"
 
-    clean_data_filename =  'data_clean.csv'
-    clean_data_file = os.path.join(OUTPUT_FOLDER, clean_data_filename)
 
-    aws_bucket_name = 'wcd-projects-jobs-data-2024'
-    aws_region = 'us-east-2'
-    output_file_name = f"jobs_{time.strftime("%Y%m%d-%H%M%S")}.csv"
-
-    df = extract()
+    # Extract data
+    df = extract(url, pagination_param, page_number)
     if df.empty:
         logging.warning(f"No data extracted. Terminating the script")
         return
-    else:
-        logging.info('Data is extracted!')
-        logging.info(f"The shape of the dataset is; {df.shape}")
-        logging.info(f"The columns in the dataset are: {df.columns}")
+
+    logging.info(f"The dataset of shape {df.shape} is extracted")
+
+    if test_run:
         save_data(df, raw_data_file)
-        logging.info('Raw data is saved!')
-        
-        # testing
-        #df = read_data()
+        logging.info(f"Raw data is saved to {raw_data_file}")
+    
+    # testing
+    #df = read_data()
 
-        df_clean = transform(df)
-        logging.info('Data is cleaned!')
+    # Tranform data
+    df_clean = transform(df)
+    logging.info('Data is cleaned!')
 
+    if test_run:
         save_data(df_clean, clean_data_file)
-        logging.info('Clean data is saved!')
+        logging.info(f"Clean data is saved to {clean_data_file}")
 
-        # Save data to S3
-        save_to_s3(df_clean, output_file_name, aws_bucket_name, aws_region)
+    # Upload to S3
+    save_to_s3(df_clean, output_file_name, aws_bucket_name, aws_region)
+    logging.info(f"ETL Complete!")
 
-        #TODO: Pass bucket name and region name via env variables
+
 
 if __name__=="__main__":
-    main()
+    parser =  argparse.ArgumentParser(description="Run the script with optional test mode.")
+    parser.add_argument('--test_run', 
+                        action = 'store_true',
+                        help="Run the script in test mode (default: False)")
+    args = parser.parse_args()
+
+    main(args.test_run)
 
