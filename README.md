@@ -18,8 +18,8 @@ The project retrieves job data from the Muse API, focusing on Page 50 of the job
 
 ### **Technical Details**  
 1. **Data Extraction:**  
-   - Use Python's `requests` library to query the API at `https://www.themuse.com/api/public/jobs?page=50`.  
-   - Extract fields of interest:  
+   - Used Python's `requests` library to query the API at `https://www.themuse.com/api/public/jobs?page=50`.  
+   - Extracted fields of interest:  
      - **Company Name**  
      - **Locations**  
      - **Job Name**  
@@ -27,29 +27,29 @@ The project retrieves job data from the Muse API, focusing on Page 50 of the job
      - **Publication Date**  
 
 2. **Data Transformation:**  
-   - Convert the JSON response to a Pandas DataFrame.  
-   - Parse and clean data:  
-     - Extract **city** and **country** from the "locations" field.  
-     - Format the "publication date" to include only the date.  
-   - Rename columns for clarity:  
+   - Converted the JSON response to a Pandas DataFrame.  
+   - Parseed and cleaned data:  
+     - Extracted **city** and **country** from the "locations" field.  
+     - Formatted the "publication date" to include only the date.  
+   - Renamed columns for clarity:  
      - `company.name` → `company_name`  
      - `name` → `job_name`  
      - `type` → `job_type`  
      - `publication_date` → `date`  
 
 3. **Data Storage:**  
-   - Save the transformed data as a Parquet file for efficient storage and retrieval.  
-   - Use **AWS S3** for data storage:  
-     - Option 1: Use `boto3` with AWS credentials to programmatically upload the file.  
-     - Option 2: Configure IAM roles for the EC2 instance and use AWS CLI (`aws s3 cp`) to upload the file.  
+   - Saveed the transformed data as a Parquet file for efficient storage and retrieval.  
+   - Used **AWS S3** for data storage:  
+     - [X]Option 1: Used `boto3` with AWS credentials to programmatically upload the file.  
+     - []Option 2: Configure IAM roles for the EC2 instance and use AWS CLI (`aws s3 cp`) to upload the file.  
 
 4. **Automation:**  
-   - Create a shell script to initialize the project environment, set up virtual environments, and run the Python script.  
-   - Use configuration files (e.g., `.env` for secrets, `.toml` for parameters) to decouple settings from the code.  
+   - Created a shell script to initialize the project environment, set up virtual environments, and run the Python script.  
+   - Used configuration files (e.g., `.env` for secrets, `.toml` for parameters) to decouple settings from the code.  
 
 5. **Environment Setup:**  
-   - Deploy the project on an AWS EC2 instance.  
-   - Use VSCode for remote SSH access to EC2 for code development and debugging.
+   - Deployed the project on an AWS EC2 instance.  
+   - Used VSCode for remote SSH access to EC2 for code development and debugging.
 
 6. **Server:**
    - `MiniProject`: a t2.micro EC2 instance
@@ -64,6 +64,7 @@ The project retrieves job data from the Muse API, focusing on Page 50 of the job
 - AWS EC2
 - AWS S3
 - Shell
+- VSCode
 
 ### **Project Structure**  
 - **`.v_env`**: Python virtual environment.  
