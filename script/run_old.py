@@ -10,12 +10,13 @@ import time
 import io
 import pyarrow
 import argparse
-from aws_utils.aws_utils import connect_to_s3
 
 
 # loading secrets from .env file
 load_dotenv()
 API_KEY = os.getenv('API_KEY')
+AWS_ACCESS_KEY=os.getenv('ACCESS_KEY')
+AWS_SECRET_KEY=os.getenv('SECRET_KEY')
 
 # loading env variables
 LOG_FILE = os.getenv('LOG_FILE_PYTHON')
@@ -103,34 +104,36 @@ def transform(df):
 
     return df
 
-
 def save_to_s3(df, output_file_name, bucket_name, region='us-east-2'):
-    s3, s3_client = connect_to_s3()
+    session = boto3.Session(
+                                aws_access_key_id=AWS_ACCESS_KEY,
+                                aws_secret_access_key=AWS_SECRET_KEY
+                            )
 
-    if s3 and s3_client:
-        # Check & create s3 bucket
-        if not s3.Bucket(bucket_name) in s3.buckets.all():
-            logging.info(f"{bucket_name} BUCKET DOES NOT EXIST IN S3; SO CREATING IT")
-            s3_client.create_bucket(
-                                    Bucket=bucket_name,
-                                    CreateBucketConfiguration={'LocationConstraint':region}
-                                    )
-            logging.info(f"{bucket_name} BUCKET CREATED ON S3")
+    s3 = session.resource('s3')
+    s3_client = session.client('s3')
 
-        # Convert DataFrame to CSV in memory
-        parquet_buffer = io.BytesIO()
-        df.to_parquet(parquet_buffer, index=False, engine='pyarrow')
+    # Check & create s3 bucket
+    if not s3.Bucket(bucket_name) in s3.buckets.all():
+        logging.info(f"{bucket_name} BUCKET DOES NOT EXIST IN S3; SO CREATING IT")
+        s3_client.create_bucket(
+                                Bucket=bucket_name,
+                                CreateBucketConfiguration={'LocationConstraint':region}
+                                )
+        logging.info(f"{bucket_name} BUCKET CREATED ON S3")
 
-        logging.info(f"Uploading data to S3 bucket: {bucket_name} in region: {region}")
-        try:
-            s3_client.put_object(Bucket=bucket_name, Key=output_file_name, Body=parquet_buffer.getvalue())
-            logging.info(f"{output_file_name} DATA UPLOADED TO S3 AS PARQUET")
-        except Exception as e:
-            logging.error(f"DATA UPLOAD FAILED DUE TO: {e}")
-        return
-    else:
-        logging.error("Could not connect to S3")
-        return
+    # Convert DataFrame to CSV in memory
+    parquet_buffer = io.BytesIO()
+    df.to_parquet(parquet_buffer, index=False, engine='pyarrow')
+
+    logging.info(f"Uploading data to S3 bucket: {bucket_name} in region: {region}")
+    try:
+        s3_client.put_object(Bucket=bucket_name, Key=output_file_name, Body=parquet_buffer.getvalue())
+        logging.info(f"{output_file_name} DATA UPLOADED TO S3 AS PARQUET")
+    except Exception as e:
+        logging.error(f"DATA UPLOAD FAILED DUE TO: {e}")
+    
+    return
 
 def main(test_run: bool) -> None:
     if test_run:

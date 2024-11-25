@@ -11,4 +11,8 @@
 # output files
 output/*
 
+# pycache files
+__pycache__/*
+*.pyc
+
 
