@@ -28,7 +28,7 @@ The project retrieves job data from the Muse API, focusing on Page 50 of the job
 
 2. **Data Transformation:**  
    - Converted the JSON response to a Pandas DataFrame.  
-   - Parseed and cleaned data:  
+   - Parsed and cleaned data:  
      - Extracted **city** and **country** from the "locations" field.  
      - Formatted the "publication date" to include only the date.  
    - Renamed columns for clarity:  
@@ -38,7 +38,7 @@ The project retrieves job data from the Muse API, focusing on Page 50 of the job
      - `publication_date` → `date`  
 
 3. **Data Storage:**  
-   - Saveed the transformed data as a Parquet file for efficient storage and retrieval.  
+   - Saved the transformed data as a Parquet file for efficient storage and retrieval.  
    - Used **AWS S3** for data storage:  
      - [X]Option 1: Used `boto3` with AWS credentials to programmatically upload the file.  
      - []Option 2: Configure IAM roles for the EC2 instance and use AWS CLI (`aws s3 cp`) to upload the file.  
@@ -51,7 +51,7 @@ The project retrieves job data from the Muse API, focusing on Page 50 of the job
    - Deployed the project on an AWS EC2 instance.  
    - Used VSCode for remote SSH access to EC2 for code development and debugging.
 
-6. **Server:**
+6. **Server Used:**
    - `MiniProject`: a t2.micro EC2 instance
 ---
 
@@ -81,7 +81,7 @@ The project retrieves job data from the Muse API, focusing on Page 50 of the job
 
 ---
 
-### **How to Run the Project**  
+### **Running the Project**  
 Run the project as follows:  
 
 ```bash
