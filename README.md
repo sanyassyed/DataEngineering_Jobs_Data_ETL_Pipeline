@@ -65,6 +65,8 @@ The project retrieves job data from the Muse API, focusing on Page 50 of the job
 - Shell
 - VSCode
 
+---
+
 ### **Project Structure**  
 - **`.v_env`**: Python virtual environment.  
 - **`requirements.txt`**: Contains the dependency packages required for this project.  
