@@ -1,5 +1,4 @@
-### **Project Title**  
-**Job Data Processing and Storage in AWS Cloud**
+### **Job Data Processing and Storage in AWS Cloud**
 
 ### **Project Description**  
 This mini project involves developing a Python-based data engineering pipeline to extract, transform, and load (ETL) job data from an API into an AWS S3 bucket. The project simulates real-world scenarios of working with APIs, managing cloud resources, and implementing ETL workflows for structured data processing.  
