@@ -11,6 +11,11 @@ The project retrieves job data from the Muse API, focusing on Page 50 of the job
 
 ---
 
+### **Project Architecture**  
+![ProjectArchitecture](./docs/project_jobs.png)
+
+---
+
 ### **Technical Details**  
 1. **Data Extraction:**  
    - Use Python's `requests` library to query the API at `https://www.themuse.com/api/public/jobs?page=50`.  
@@ -46,7 +51,19 @@ The project retrieves job data from the Muse API, focusing on Page 50 of the job
    - Deploy the project on an AWS EC2 instance.  
    - Use VSCode for remote SSH access to EC2 for code development and debugging.
 
+6. **Server:**
+   - `MiniProject`: a t2.micro EC2 instance
 ---
+
+### **Tools Used**
+- Python
+   - Pandas
+   - Boto3
+   - Numpy
+   - Requests
+- AWS EC2
+- AWS S3
+- Shell
 
 ### **Project Structure**  
 - **`.v_env`**: Python virtual environment.  
@@ -70,11 +87,6 @@ Run the project as follows:
 # This will run the project in production mode
 bash ./script/run.sh
 ```
-
----
-
-### **Project Architecture**  
-![ProjectArchitecture](./docs/project_jobs.png)
 
 ---
 
