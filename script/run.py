@@ -30,7 +30,18 @@ logging.basicConfig(
 
 logging.info(f"LOG FILE FOR THIS PYTHON SCRIPT IS AT: {LOG_FILE}")
 
-def extract(url, pagination_param, page_number):
+def extract(url: str, pagination_param: str, page_number: int) -> p.DataFrame:
+    """
+    Extracts data from an API endpoint using the specified URL, pagination parameters, and page number.
+    
+    Args:
+        url (str): The API endpoint URL.
+        pagination_param (str): The pagination parameter for the API.
+        page_number (int): The page number to fetch.
+
+    Returns:
+        pandas.DataFrame: A cleaned DataFrame containing extracted data, or an empty DataFrame if extraction fails.
+    """
     params = {
               pagination_param : page_number,
               "api_key": API_KEY
@@ -68,22 +79,54 @@ def extract(url, pagination_param, page_number):
     return df_clean
 
 # Function to remove accents/diacritics
-def remove_diacritics(text):
+def remove_diacritics(text: str) -> str:
+    """
+    Removes accents/diacritics from a string and converts it to plain ASCII text.
+    
+    Args:
+        text (str): The input string.
+
+    Returns:
+        str: The text with diacritics removed.
+    """
     if isinstance(text, str):
         return unicodedata.normalize('NFKD', text).encode('ascii', 'ignore').decode('ascii')
     return text
 
-def save_data(df, file_name):
+def save_data(df: p.DataFrame, file_name: str) -> None:
+    """
+    Saves a DataFrame to a CSV file with diacritics removed from all string entries.
+    
+    Args:
+        df (pandas.DataFrame): The DataFrame to save.
+        file_name (str): The name of the output CSV file.
+    """
     # Remove accents/diacritics
     df = df.map(remove_diacritics)
     df.to_csv(file_name, encoding='utf-8-sig', index=False) # otherwise it writes row numbers as a column
 
-def read_data():
+def read_data() -> p.DataFrame:
+    """
+    Reads data from a CSV file named 'data.csv' into a pandas DataFrame.
+    
+    Returns:
+        pandas.DataFrame: The loaded DataFrame.
+    """
     df = p.read_csv('data.csv', encoding='utf-8')
     return df
 
     
-def transform(df):
+def transform(df: p.DataFrame) -> p.DataFrame:
+    """
+    Cleans and transforms the extracted DataFrame by renaming columns, extracting city and country information,
+    and formatting dates.
+    
+    Args:
+        df (pandas.DataFrame): The raw extracted DataFrame.
+
+    Returns:
+        pandas.DataFrame: The transformed DataFrame.
+    """
     renamed_columns =  {'company.name':'company_name',
                         'locations':'location', 
                         'name':'job_name', 
@@ -104,7 +147,16 @@ def transform(df):
     return df
 
 
-def save_to_s3(df, output_file_name, bucket_name, region='us-east-2'):
+def save_to_s3(df : p.DataFrame, output_file_name : str, bucket_name : str, region : str ='us-east-2') -> None:
+    """
+    Uploads a DataFrame to an S3 bucket as a Parquet file. Creates the S3 bucket if it doesn't exist.
+    
+    Args:
+        df (pandas.DataFrame): The DataFrame to upload.
+        output_file_name (str): The name of the file to be saved in S3.
+        bucket_name (str): The name of the S3 bucket.
+        region (str): The AWS region where the bucket is located (default: 'us-east-2').
+    """
     s3, s3_client = connect_to_s3()
 
     if s3 and s3_client:
@@ -133,6 +185,12 @@ def save_to_s3(df, output_file_name, bucket_name, region='us-east-2'):
         return
 
 def main(test_run: bool) -> None:
+    """
+    Orchestrates the ETL process including data extraction, transformation, and loading to S3.
+    
+    Args:
+        test_run (bool): If True, runs the script in test mode and saves intermediate files locally.
+    """
     if test_run:
         logging.info("Running in test mode...")
 
