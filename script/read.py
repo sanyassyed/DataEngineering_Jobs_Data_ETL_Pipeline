@@ -48,7 +48,7 @@ def main() -> None:
 
     # Check and create 'output' folder
     if not os.path.exists(output_folder_path):
-        logging.info(f"Creating output folder at: {output_folder_path}")
+        print(f"Creating output folder at: {output_folder_path}")
         os.mkdir(output_folder_path)
 
     df = read_data(file_name, aws_bucket_name, aws_region)
