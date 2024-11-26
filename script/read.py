@@ -10,7 +10,7 @@ from aws_utils.aws_utils import connect_to_s3
 
 def read_data(aws_bucket_name, aws_region):
     s3, s3_client = connect_to_s3()
-    file_name = 'jobs_20241125-165905.parquet'
+    file_name = 'jobs_20241126-164558.parquet'
     buffer = io.BytesIO()
     object = s3.Object(aws_bucket_name, file_name)
     object.download_fileobj(buffer)
