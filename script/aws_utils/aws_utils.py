@@ -2,6 +2,7 @@ import boto3
 import os
 import logging
 from dotenv import load_dotenv
+from typing import Tuple, Optional
 
 # Load environment variables
 load_dotenv()
@@ -9,7 +10,7 @@ load_dotenv()
 AWS_ACCESS_KEY = os.getenv('ACCESS_KEY')
 AWS_SECRET_KEY = os.getenv('SECRET_KEY')
 
-def connect_to_s3():
+def connect_to_s3() -> Tuple[Optional[boto3.resources.base.ServiceResource], Optional[boto3.client]]:
     """
     Establish a connection to AWS S3 using credentials from environment variables.
 

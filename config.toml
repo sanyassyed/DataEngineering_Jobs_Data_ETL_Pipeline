@@ -16,4 +16,4 @@ url="https://www.themuse.com/api/public/jobs"
 [aws]
 bucket_name='wcd-projects-jobs-data-2024'
 region='us-east-2'
-file_name='jobs_20241126-164558.parquet'
+file_name='jobs_20241126-173725.parquet'
