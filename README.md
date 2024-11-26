@@ -72,11 +72,18 @@ The project retrieves job data from the Muse API, focusing on Page 50 of the job
 - **`requirements.txt`**: Contains the dependency packages required for this project.  
 - **`config.toml`**: Contains API and AWS parameters for configuring the project.  
 - **`.env`**: Contains API and AWS secrets.  
-- **`script/init.sh`**: Shell script to set the environment variables and initiate the project.  
+- **`script/init.sh`**: Shell script to initiate the project by creating
+   - Installing Python
+   - Creating virtual env
+   - Installing packages listed in requirements.txt to the virtual env
 - **`script/run.py`**: Python ETL script for extracting, transforming, and loading the data.  
 - **`script/run.sh`**: Shell script to control the execution of:  
-   - The initialization script.  
-   - The Python script (in either test mode or production mode).  
+   - Set environment variables  
+   - Run the Python script (in either test mode or production mode).  
+- **`script/read.py`**: Python script used for testing to read the parquet file from s3 and write into local system as csv.
+   - Run this file as `python3 script/read.py`
+   - Add the file name to be downloaded in config.toml at `['aws']['file_name']`
+   - The file will be downloaded at `output/output.csv`
 - **`logs/`**: Contains log files for debugging and auditing.  
 - **`.gitignore`**: Specifies files to ignore in version control.
 

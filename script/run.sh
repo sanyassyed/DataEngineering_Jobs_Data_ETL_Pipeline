@@ -54,10 +54,12 @@ echo "[INFO:] Log file for ${PYTHON_FILE_NAME} at: ${LOG_FILE_PYTHON}"
 echo "[INFO:] Running Python script at: ${PYTHON_FILE}"
 
 # PRODUCTION MODE
+echo "[INFO:] Running in Production Mode:"
 python3 "${PYTHON_FILE}"
 
 # TESTING MODE (uncomment if needed):
-# python3 "${PYTHON_FILE}" --test_run
+#echo "[INFO:] Running in Test Mode:"
+#python3 "${PYTHON_FILE}" --test_run
 
 RC1=$?
 if [ ${RC1} != 0 ]; then
