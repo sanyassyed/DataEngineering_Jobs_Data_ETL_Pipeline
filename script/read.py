@@ -54,6 +54,7 @@ def main() -> None:
     df = read_data(file_name, aws_bucket_name, aws_region)
     #print(df.head())
     df.to_csv(output_file_path, encoding='utf-8-sig', index=False)
+    print(f"Data written to {output_file_path}.")
 
 if __name__=="__main__":
     main()
