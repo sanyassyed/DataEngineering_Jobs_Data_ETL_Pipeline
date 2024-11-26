@@ -1,24 +1,31 @@
 #!/bin/bash
 
 ##############################################################
+# load variables from config.toml
+export SCRIPT_FOLDER_NAME=$(grep 'script_folder' config.toml | sed 's/.*=//' | tr -d '"')
+export INIT_SCRIPT=$(grep 'init_script' config.toml | sed 's/.*=//' | tr -d '"')
 # Step 1: Setting up environment variables in init.sh file
-echo "[INFO:] SETTING ENVIRONMENT VARIABLES IN init.sh"
-source script/init.sh  # Source instead of running as a separate process
-
+echo "[INFO:] Setting project environment via ${INIT_SCRIPT}"
+source ${SCRIPT_FOLDER_NAME}/${INIT_SCRIPT}  # Source instead of running as a separate process
 ##############################################################
 # Step 2: Running Python Script
-echo "[DEBUG:] PYTHON_FILE is set to: ${PYTHON_FILE}"
-echo "[INFO:] RUNNING PYTHON SCRIPT ${PYTHON_FILE}"
+echo "[INFO:] Running Python script at: ${PYTHON_FILE}"
 # PRODUCTION MODE
 python3 "${PYTHON_FILE}"
 
 # TESTING MODE: where data in written locally in folder named output
 #python3 "${PYTHON_FILE}" --test_run
 
-# Check if the Python script ran successfully
-if [ $? -eq 0 ]; then
-    echo "[INFO:] Python script executed successfully."
-else
-    echo "[ERROR:] Failed to execute Python script."
-    exit 1
+RC1=$?
+if [ ${RC1} != 0 ]; then
+	echo "[DEBUG:] PYTHON RUNNING FAILED"
+	echo "[ERROR:] RETURN CODE:  ${RC1}"
+	echo "[ERROR:] REFER TO THE LOG FOR THE REASON FOR THE FAILURE."
+	exit 1
 fi
+
+echo "PYTHON PROGRAM RUN SUCCEEDED"
+
+deactivate
+
+exit 0 
