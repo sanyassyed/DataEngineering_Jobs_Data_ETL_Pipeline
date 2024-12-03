@@ -19,6 +19,6 @@ pip install -r requirements.txt
 
 deactivate # deactivate your sandbox
 
-chmod a+x run.sh # make run.sh executable
+chmod a+x script/run.sh # make run.sh executable
 
 mkdir -p log # create log directory if it doesn't exist
