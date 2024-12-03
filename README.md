@@ -90,7 +90,10 @@ The project retrieves job data from the Muse API, focusing on Page 50 of the job
 ---
 
 ### **Project Setup**
-Run the following commands to setup the server for the project to run
+- Run the following commands to setup the server for the project to run
+- This will pull the project repo from git
+- Run the initialization script which will install the apt packages, python, virtual environment for python and the required python packages in this python virtual environment
+- Will also give execution access to the shell script `script/run.sh` to run the python code
 
 ```bash
 git clone https://github.com/sanyassyed/DataEngineering_Jobs_Data_ETL_Pipeline.git
