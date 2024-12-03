@@ -89,8 +89,7 @@ The project retrieves job data from the Muse API, focusing on Page 50 of the job
 
 ---
 
-### **Running the Project**  
-#### Initializing the project
+#### **Project Setup**
 ```bash
 git clone https://github.com/sanyassyed/DataEngineering_Jobs_Data_ETL_Pipeline.git
 cd DataEngineering_Jobs_Data_ETL_Pipeline
@@ -101,13 +100,28 @@ nano env_boilerplate
 # rename env_boilerplate to .env
 mv env_boilerplate .env
 ```
-#### Running the project
-Run the project as follows:  
+---
+
+### **Running the project**
+Run the project as follows: NOTE:default mode is production mode; to run in test mode change the code in [run.sh](./script/run.sh):  
 
 ```bash
 # This will run the project in production mode
 bash ./script/run.sh
 ```
+
+---
+
+### **Testing**
+To read back the data written to the s3 bucket do the following:
+- Under [aws] in `config.toml` update the file name.
+- Then run the read script as follows:
+   ```bash
+   source ./.v_env_bin/activate
+   python3 ./script/read.py
+   ```
+- The output file `output.csv` will then be available in the [output](./output/) folder
+- This helps you check the data written to s3
 
 ---
 
