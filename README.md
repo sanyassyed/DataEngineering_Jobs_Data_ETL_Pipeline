@@ -119,11 +119,11 @@ bash ./script/run.sh
 
 ### **Testing**
 To read back the data written to the s3 bucket do the following:
-- Under [aws] in `config.toml` update the file name.
+- Under [aws] in `config.toml` update the `file_name`.
 - Then run the read script as follows:
    ```bash
    # activate the virtual env
-   source ./.v_env_bin/activate
+   source ./.v_env/bin/activate
    # run the python testing script
    python3 ./script/read.py
    ```
