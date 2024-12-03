@@ -122,7 +122,9 @@ To read back the data written to the s3 bucket do the following:
 - Under [aws] in `config.toml` update the file name.
 - Then run the read script as follows:
    ```bash
+   # activate the virtual env
    source ./.v_env_bin/activate
+   # run the python testing script
    python3 ./script/read.py
    ```
 - The output file `output.csv` will then be available in the [output](./output/) folder
