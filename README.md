@@ -89,7 +89,8 @@ The project retrieves job data from the Muse API, focusing on Page 50 of the job
 
 ---
 
-#### **Project Setup**
+### **Project Setup**
+
 ```bash
 git clone https://github.com/sanyassyed/DataEngineering_Jobs_Data_ETL_Pipeline.git
 cd DataEngineering_Jobs_Data_ETL_Pipeline
