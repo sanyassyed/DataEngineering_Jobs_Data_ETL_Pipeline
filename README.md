@@ -108,7 +108,7 @@ mv env_boilerplate .env
 ### **Running the project**
 Run the project as follows: 
 
-`NOTE`: The default mode is production mode; to run in test mode change the code in [run.sh](./script/run.sh):  
+`NOTE`: The default mode is `production mode`; to run in test mode change the code in [run.sh](./script/run.sh)  
 
 ```bash
 # This will run the project in production mode
