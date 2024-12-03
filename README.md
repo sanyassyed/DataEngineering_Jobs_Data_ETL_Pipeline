@@ -90,6 +90,18 @@ The project retrieves job data from the Muse API, focusing on Page 50 of the job
 ---
 
 ### **Running the Project**  
+#### Initializing the project
+```bash
+git clone https://github.com/sanyassyed/DataEngineering_Jobs_Data_ETL_Pipeline.git
+cd DataEngineering_Jobs_Data_ETL_Pipeline
+bash ./script/init.sh
+# Add the secrets to env_blueprint
+# api key and access key and secret key to access s3 bucket
+nano env_boilerplate
+# rename env_boilerplate to .env
+mv env_boilerplate .env
+```
+#### Running the project
 Run the project as follows:  
 
 ```bash
